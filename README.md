@@ -4,6 +4,8 @@ VUKA is a job-board website for job seekers in Nigeria. Employers sign up and po
 
 I built it from scratch in plain PHP, with no framework, to learn how a real web application works end to end: user accounts, logins, roles, a database, and pages that change based on who is signed in.
 
+**Live demo:** http://vuka.freedev.app (sign up to browse and save jobs. It's on free hosting, so the first load can be slow.)
+
 **View the code:** https://github.com/Akenne-dev/VukaPhp
 
 ![VUKA homepage](screenshots/index.png)
