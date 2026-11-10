@@ -1,0 +1,2 @@
+# Real database passwords for the live site. Never commit this file.
+config.php

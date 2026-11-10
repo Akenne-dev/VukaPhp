@@ -24,6 +24,7 @@ I built it from scratch in plain PHP, with no framework, to learn how a real web
 - Save or unsave a job with one click, and view all saved jobs in one place
 
 **For employers / admins**
+- Admin accounts can't be created from the public sign-up form. The site owner promotes them in the database, so strangers can't post jobs.
 - A separate admin dashboard (job seekers can't open it)
 - Form to post a new job: title, company, location, type (Full-time, Part-time, Contract, Remote, Internship) and description
 - List of all jobs you have posted. Click one to see its full details in a pop-up
@@ -42,7 +43,8 @@ I built it from scratch in plain PHP, with no framework, to learn how a real web
 | **User accounts** | `signup.php` validates the form on the server: required fields, a valid email, a password of at least 8 characters with one special character, and matching passwords. It also checks that the email isn't already registered. |
 | **Password security** | Passwords are never stored as plain text. They are hashed with `password_hash()` and checked at login with `password_verify()`. |
 | **Sessions & login** | After a successful login, PHP `$_SESSION` stores the user's ID, name, email and role. `session_regenerate_id()` runs on login to protect against session hijacking. `logout.php` clears the session. |
-| **Roles & access control** | Every user is either a `user` (job seeker) or an `admin` (employer). Each protected page checks the session first and redirects anyone who shouldn't be there. For example, a job seeker trying to open `admin.php` is sent back to their dashboard. |
+| **Roles & access control** | Every user is either a `user` (job seeker) or an `admin` (employer). The sign-up page always creates job seekers, even if someone tampers with the form, so admin rights can only be granted in the database. Each protected page checks the session first and redirects anyone who shouldn't be there. For example, a job seeker trying to open `admin.php` is sent back to their dashboard. |
+| **Keeping secrets off GitHub** | `database.php` uses the local XAMPP defaults. On a live server, it loads the real database password from `config.php`, a file listed in `.gitignore` so it is never pushed to GitHub. |
 | **Preventing SQL injection** | Queries that use form data are built with **prepared statements** (`prepare()` + `bind_param()`), so user input is never pasted directly into SQL. |
 | **Preventing XSS** | Everything shown on a page that came from a user, such as job titles, names and descriptions, goes through `htmlspecialchars()` first. |
 | **A small JSON API** | `save-job.php` works as an API endpoint. When you click **Save** on the jobs page, JavaScript sends a `fetch()` request to it. PHP adds or removes the saved job in the database and returns a JSON reply, so the page updates without reloading. |
@@ -87,7 +89,8 @@ VukaPhp/
 ├── save-job.php            JSON endpoint that saves/unsaves a job
 ├── admin.php               Employer dashboard: post jobs and view your postings
 ├── footer.php              Footer component
-├── database.php            MySQL connection settings
+├── database.php            MySQL connection (local XAMPP defaults)
+├── config.example.php      Template for live-server database settings (copy to config.php)
 ├── database.sql            Creates the database and all tables
 ├── schema-update.sql       Upgrade script for older copies of the database
 ├── saved-jobs-update.sql   Upgrade script that adds the saved_jobs table
@@ -108,7 +111,11 @@ VukaPhp/
 3. **Create the database:** open http://localhost/phpmyadmin, click the **SQL** tab, paste in the contents of `database.sql` and click **Go**.
 4. **Check the connection settings** in `database.php`. They match a fresh XAMPP install (user `root`, no password). Change them if your MySQL login is different.
 5. **Open the site:** http://localhost/VukaPhp/
-6. Sign up as an **Admin / employer** and post a few jobs, then sign up again as a **Job seeker** to browse and save them.
+6. **Create an admin (employer) account:** sign up on the site, then in phpMyAdmin's SQL tab run:
+   ```sql
+   UPDATE vuka_db.users SET role = 'admin' WHERE email = 'the-email-you-signed-up-with';
+   ```
+   Log in again choosing **Admin / employer** to post jobs. Then sign up with a different email as a job seeker to browse and save them.
 
 ---
 
@@ -118,4 +125,4 @@ VukaPhp/
 - Editing and deleting posted jobs
 - Password reset by email
 - "Continue with Google" sign-in (the button is there, but it isn't connected yet)
-- Admin approval for new employer accounts
+- An employer sign-up flow with admin approval (right now, admin accounts are set up in the database)
